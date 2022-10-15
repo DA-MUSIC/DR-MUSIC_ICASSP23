@@ -1,7 +1,7 @@
 import numpy as np
 from System_Model import *
 
-def CreateDOAwithGapM(M, gap):
+def create_DOA_with_gap(M, gap):
     while(True):
         DOA = np.round(np.random.rand(M) *  180 ,decimals = 2) - 90.00
         DOA.sort()
@@ -11,11 +11,15 @@ def CreateDOAwithGapM(M, gap):
     return DOA
 
 def create_closely_spaced_DOA(M, gap):
+    if (M == 2):
+        first_DOA = np.round(np.random.rand(1) *  180 ,decimals = 2) - 90.00
+        second_DOA = ((first_DOA + gap + 90 ) % 180) - 90
+        return np.array([first_DOA, second_DOA])
     DOA = [np.round(np.random.rand(1) *  180 ,decimals = 2) - 90.00]
-    while(len(DOA) == M):
+    while(len(DOA) < M):
         candidate_DOA = np.round(np.random.rand(1) *  180 ,decimals = 2) - 90.00
-        difference_between_angles = np.array([np.abs(candidate_DOA - DOA[i]) for i in range(M-1)])
-        if(difference_between_angles < gap and (180 - difference_between_angles) < gap):
+        difference_between_angles = np.array([np.abs(candidate_DOA - DOA[i]) for i in range(len(DOA))])
+        if(np.sum(difference_between_angles < gap) == len(DOA) or np.sum((180 - difference_between_angles) < gap) == len(DOA)):
             DOA.append(candidate_DOA)
     return np.array(DOA)
 
@@ -28,7 +32,8 @@ class Sampels(object):
         self.SV_Creation = System_model.SV_Creation
         if DOA == None:
           # self.DOA = np.array(np.pi * (np.random.rand(self.M) - 0.5))         # generate aribitrary DOA angels
-          self.DOA = (np.pi / 180) * np.array(CreateDOAwithGapM(M = self.M, gap = 15)) # (~0.2 rad)
+        #   self.DOA = (np.pi / 180) * np.array(create_DOA_with_gap(M = self.M, gap = 15)) # (~0.2 rad)
+          self.DOA = (np.pi / 180) * np.array(create_closely_spaced_DOA(M = self.M, gap = 10)) # (~0.2 rad)
             # self.DOA = np.array(np.round((np.pi * ((np.random.rand(self.M) - 0.5))),decimals=2))
         else: 
           self.DOA = (np.pi / 180) * np.array(DOA)                              # define DOA angels
@@ -105,3 +110,7 @@ class Sampels(object):
                 pass
         else:
             return 0
+
+
+if __name__ == "__main__":
+    print(create_closely_spaced_DOA(M=2, gap = 6))

@@ -21,7 +21,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
     Main_path = r"G:\\My Drive\\Thesis\\DeepRootMUSIC\\Code"
     Main_Data_path = r"G:\\My Drive\\Thesis\\DeepRootMUSIC\\Code\\DataSet"
-    Data_Scenario_path = r"\\LowSNR"
+    Data_Scenario_path = r"\\CloselySpaced"
     saving_path = r"G:\My Drive\Thesis\\DeepRootMUSIC\Code\\Weights\Models"
     Simulations_path = r"G:\My Drive\Thesis\\DeepRootMUSIC\\Code\\Simulations"
 
@@ -51,15 +51,15 @@ if __name__ == "__main__":
     ############################
     ##    Data Parameters     ##
     ############################
-    tau = 1
+    tau = 8
     N = 8
-    M = 3
-    T = 2
+    M = 2
+    T = 100
     SNR = 10
-    nNumberOfSampels = 100000
-    Train_Test_Ratio = 0.05
+    nNumberOfSampels = 100
+    Train_Test_Ratio = 0.5
     scenario = "NarrowBand"
-    mode = "coherent"
+    mode = "non-coherent"
     
     ############################
     ###   Create Data Sets   ###
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         fig = plt.figure(figsize=(8, 6), dpi=80)
         
         print("\n--- New Simulation ---\n")
-        print("Description: Simulation with T = {}, Tau = {}, SNR = {}, {} sources".format(T, tau, SNR, mode))
+        print("Description: Simulation of closely spaced sources with T = {}, Tau = {}, SNR = {}, {} sources".format(T, tau, SNR, mode))
         print("Simulation parameters:")
         print("Learning Rate = {}".format(optimal_lr))
         print("Batch Size = {}".format(optimal_bs))
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         print("scenario = {}".format(scenario))
         print("mode = {}".format(mode))
         print("Observations = {}".format(T))
-        loading_path = saving_path + r"/model_tau=2_M=2_100Ksampels_SNR_10_T=2"
+        loading_path = saving_path + r"/model_tau=8_M=2_100Ksampels_LowSNR_1009_08_2022_00_05"
         model = Deep_Root_Net_AntiRectifier(tau=tau, ActivationVal=0.5)  
         # model = Deep_Root_Net(tau=tau, ActivationVal=0.5)                                         
         
