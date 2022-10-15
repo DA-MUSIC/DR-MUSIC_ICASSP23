@@ -3,14 +3,21 @@ from System_Model import *
 
 def CreateDOAwithGapM(M, gap):
     while(True):
-        # DOA = np.round(np.random.rand(M) *  180 ,decimals = 0) - 90.00
         DOA = np.round(np.random.rand(M) *  180 ,decimals = 2) - 90.00
-        # DOA = np.random.randint(180, size = M) - 90
         DOA.sort()
-        diffbetweenAngles = np.array([np.abs(DOA[i+1] - DOA[i]) for i in range(M-1)])
-        if(np.sum(diffbetweenAngles > gap) == M - 1 and np.sum(diffbetweenAngles < (180 - gap)) == M - 1):
+        difference_between_angles = np.array([np.abs(DOA[i+1] - DOA[i]) for i in range(M-1)])
+        if(np.sum(difference_between_angles > gap) == M - 1 and np.sum(difference_between_angles < (180 - gap)) == M - 1):
             break
     return DOA
+
+def create_closely_spaced_DOA(M, gap):
+    DOA = [np.round(np.random.rand(1) *  180 ,decimals = 2) - 90.00]
+    while(len(DOA) == M):
+        candidate_DOA = np.round(np.random.rand(1) *  180 ,decimals = 2) - 90.00
+        difference_between_angles = np.array([np.abs(candidate_DOA - DOA[i]) for i in range(M-1)])
+        if(difference_between_angles < gap and (180 - difference_between_angles) < gap):
+            DOA.append(candidate_DOA)
+    return np.array(DOA)
 
 class Sampels(object):
     def __init__(self, System_model, DOA, observations):
@@ -28,8 +35,8 @@ class Sampels(object):
     
     def Sampels_creation(self, mode, N_mean= 0, N_Var= 1, S_mean= 0, S_Var= 1, SNR= 10, Carriers= None):
         '''
-        @mode = represent the specific mode in the specific scnarion
-                e.g. "Broadband" scenarion in "non-coherent" mode
+        @mode = represent the specific mode in the specific scenario
+                e.g. "Broadband" scenario in "non-coherent" mode
         '''
         signal = self.Signal_creation(mode, S_mean, S_Var, SNR, Carriers)
         noise = self.Noise_Creation(N_mean, N_Var)
@@ -98,67 +105,3 @@ class Sampels(object):
                 pass
         else:
             return 0
-
-
-#********************#
-#   create dataset   #
-#********************#
-def create_dataset(name, size, coherent=False, save=True):
-    """
-        Creates dataset of given size with the above initializations and saves.
-
-        @param name -- The name (an path) of the file of the dataset.
-        @param size -- The size of the dataset.
-        @param coherent -- If true, the signals are coherent.
-        @param save -- If true, the dataset is saved to filename.
-    """
-    X = np.zeros((size, N, snapshots)) + 1j * np.zeros((size, m, snapshots))
-    Thetas = np.zeros((size, M))
-    for i in tqdm(range(size)):
-        thetas = np.pi * (np.random.rand(d) - 1/2)  # random source directions
-        if coherent: X[i] = construct_coherent_signal(thetas)[0]
-        else: X[i] = construct_signal(thetas)[0]
-        Thetas[i] = thetas
-
-    if save:
-        hf = h5py.File('data/' + name + '.h5', 'w')
-        hf.create_dataset('X', data=X)
-        hf.create_dataset('Y', data=Thetas)
-        hf.close()
-
-    return X, Thetas
-
-
-#**************************#
-#   create mixed dataset   #
-#**************************#
-def create_mixed_dataset(name, first, second, save=True):
-    """
-        Creates dataset of given size with the above initializations and saves.
-
-        @param name -- The name (an path) of the file of the dataset.
-        @param first -- The path/name of the first dataset to be mixed with...
-        @param second -- The path/name of the second dataset.
-        @param save -- If true the dataset is saved to filename.
-    """
-    hf1 = h5py.File(first + '.h5', 'r')
-    hf2 = h5py.File(second + '.h5', 'r')
-
-    dataX1 = np.array(hf1.get('X'))
-    dataY1 = np.array(hf1.get('Y'))
-
-    dataX2 = np.array(hf2.get('X'))
-    dataY2 = np.array(hf2.get('Y'))
-
-    dataX = np.concatenate((dataX1, dataX2), axis=1)
-    dataY = np.concatenate((dataY1, dataY2), axis=1)
-
-    dataX, dataY = utils.shuffle(dataX, dataY)
-
-    if save:
-        hf = h5py.File('data/' + name + '.h5', 'w')
-        hf.create_dataset('X', data=dataX)
-        hf.create_dataset('Y', data=dataY)
-        hf.close()
-
-    return dataX, dataY

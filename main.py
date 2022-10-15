@@ -200,4 +200,3 @@ if __name__ == "__main__":
             model.load_state_dict(torch.load(loading_path, map_location=torch.device('cpu')))
         
         PlotSpectrum(model, DataSet_Rx_test, DataSet_x_test, Sys_Model)
-        
