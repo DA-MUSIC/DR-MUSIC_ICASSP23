@@ -1,4 +1,4 @@
-# DR-MUSIC_ICASSP23
+# DeepRootMUSIC
 ## Absract
 Direction-of-arrival (DoA) estimation is a fundamental task in array processing.
 A popular family of DoA estimation algorithms are subspace methods, which operate by dividing the measurements into distinct signal and noise subspaces.
